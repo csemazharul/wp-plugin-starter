@@ -1,0 +1,333 @@
+#!/usr/bin/env php
+<?php
+
+define('KIT_ROOT', __DIR__);
+
+// ── CLI helpers ───────────────────────────────────────────────────────────────
+
+function cli_ask(string $prompt, string $default = ''): string
+{
+    $hint = $default !== '' ? " [{$default}]" : '';
+    echo cli_blue($prompt . $hint . ': ');
+    $line = trim(fgets(STDIN));
+    return $line !== '' ? $line : $default;
+}
+
+function cli_confirm(string $prompt): bool
+{
+    echo cli_blue($prompt . ' [y/N]: ');
+    return strtolower(trim(fgets(STDIN))) === 'y';
+}
+
+function cli_cyan(string $s): string   { return "\033[36m{$s}\033[0m"; }
+function cli_green(string $s): string  { return "\033[32m{$s}\033[0m"; }
+function cli_yellow(string $s): string { return "\033[33m{$s}\033[0m"; }
+function cli_red(string $s): string    { return "\033[31m{$s}\033[0m"; }
+function cli_blue(string $s): string   { return "\033[34m{$s}\033[0m"; }
+function cli_bold(string $s): string   { return "\033[1m{$s}\033[0m"; }
+
+function cli_ok(string $s): void   { echo cli_green("  ✓ ") . $s . "\n"; }
+function cli_err(string $s): void  { echo cli_red("  ✗ ") . $s . "\n"; }
+
+// ── Commands ──────────────────────────────────────────────────────────────────
+
+function cmd_plugin_init(): void
+{
+    echo cli_bold(cli_cyan("\nWP Starter Kit — Plugin Initializer\n\n"));
+
+    $info = collect_plugin_info();
+
+    echo "\n" . cli_cyan("Summary\n");
+    foreach ($info as $k => $v) {
+        echo '  ' . str_pad($k, 16) . ': ' . cli_yellow($v) . "\n";
+    }
+
+    echo "\n";
+    if (!cli_confirm('Proceed and replace all placeholders?')) {
+        echo cli_yellow("Cancelled.\n");
+        exit(0);
+    }
+
+    echo "\n";
+    rename_main_file($info['slug']);
+    process_all_files($info);
+    run_composer_install();
+
+    echo "\n" . cli_bold(cli_green("Congratulations! Your plugin is ready to develop.\n\n"));
+}
+
+function cmd_plugin_info(): void
+{
+    $config = KIT_ROOT . '/backend/app/Config.php';
+    $src = file_exists($config) ? file_get_contents($config) : '';
+
+    preg_match("/const SLUG\s*=\s*'([^']+)'/", $src, $slug);
+    preg_match("/const TITLE\s*=\s*'([^']+)'/", $src, $title);
+    preg_match('/^namespace\s+([\w\\\\]+);/m', $src, $ns);
+
+    echo cli_cyan("\nPlugin Info\n");
+    echo '  Name      : ' . ($title[1] ?? '?') . "\n";
+    echo '  Slug      : ' . ($slug[1]  ?? '?') . "\n";
+    echo '  Namespace : ' . ($ns[1]    ?? '?') . "\n\n";
+}
+
+// ── Input collection ──────────────────────────────────────────────────────────
+
+function collect_plugin_info(): array
+{
+    $name = cli_require('Enter the plugin name');
+
+    $defaultSlug = to_slug($name);
+    $slug = cli_require_slug('Enter the plugin slug', $defaultSlug);
+
+    $defaultPrefix = strtoupper(str_replace('-', '_', $slug));
+    $rawPrefix = cli_ask('Enter the plugin prefix [space, hyphen will be converted to _]', $defaultPrefix);
+    $prefix = strtoupper(preg_replace('/[\s\-]+/', '_', trim($rawPrefix)));
+
+    $rawApi = cli_ask('Enter the REST API namespace [space, hyphen will be converted to _]', $slug);
+    $apiNs  = preg_replace('/[\s\-]+/', '_', trim($rawApi));
+
+    $defaultNs = to_pascal_case($name);
+    $namespace = cli_ask('Enter the app root namespace', $defaultNs);
+    $namespace = $namespace !== '' ? $namespace : $defaultNs;
+
+    $authorName  = cli_ask('Enter author name', 'Your Name');
+    $authorEmail = cli_ask('Enter author email', 'you@example.com');
+    $authorUrl   = cli_ask('Enter author URL', 'https://example.com');
+    $description = cli_ask('Enter plugin description', 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAA');
+
+    return compact('name', 'slug', 'prefix', 'apiNs', 'namespace', 'authorName', 'authorEmail', 'authorUrl', 'description');
+}
+
+function cli_require(string $prompt): string
+{
+    while (true) {
+        $val = cli_ask($prompt);
+        if ($val !== '') return $val;
+        echo cli_red("  This field is required.\n");
+    }
+}
+
+function cli_require_slug(string $prompt, string $default): string
+{
+    while (true) {
+        $val  = cli_ask($prompt, $default);
+        $slug = to_slug($val);
+        if ($slug !== '') return $slug;
+        echo cli_red("  Invalid slug.\n");
+    }
+}
+
+// ── File processing ───────────────────────────────────────────────────────────
+
+const SKIP_DIRS = ['node_modules', '.git', 'vendor', 'assets', 'dependencies', 'build', 'dist'];
+const SKIP_EXTS = ['png','jpg','jpeg','gif','svg','ico','woff','woff2','ttf','eot','map'];
+
+function rename_main_file(string $slug): void
+{
+    // Find the current main plugin file by looking for a .php file with Plugin Name header
+    $from = null;
+    foreach (glob(KIT_ROOT . '/*.php') as $f) {
+        $contents = file_get_contents($f);
+        if (strpos($contents, 'Plugin Name:') !== false) {
+            $from = $f;
+            break;
+        }
+    }
+
+    if (!$from) return;
+
+    $to = KIT_ROOT . "/{$slug}.php";
+    if ($from === $to) return;
+
+    $basename = basename($from);
+    rename($from, $to)
+        ? cli_ok("Renamed {$basename} → {$slug}.php")
+        : cli_err('Could not rename main plugin file.');
+}
+
+function process_all_files(array $info): void
+{
+    $count = 0;
+    walk_dir(KIT_ROOT, $info, $count);
+    echo "\n";
+    cli_ok("Updated {$count} file(s).");
+}
+
+function run_composer_install(): void
+{
+    echo "\n" . cli_cyan("Removing vendor/ for clean Imposter transform...\n");
+    delete_dir(KIT_ROOT . '/vendor');
+    cli_ok('vendor/ removed.');
+
+    echo cli_cyan("Running composer install...\n");
+    $cmd = 'composer install --working-dir=' . escapeshellarg(KIT_ROOT) . ' 2>&1';
+    $proc = popen($cmd, 'r');
+    while (!feof($proc)) {
+        echo fgets($proc);
+    }
+    $exit = pclose($proc);
+    echo "\n";
+    $exit === 0
+        ? cli_ok('composer install completed.')
+        : cli_err("composer install failed (exit {$exit}).");
+}
+
+function delete_dir(string $dir): void
+{
+    if (!is_dir($dir)) return;
+    foreach (scandir($dir) as $item) {
+        if ($item === '.' || $item === '..') continue;
+        $path = $dir . DIRECTORY_SEPARATOR . $item;
+        is_dir($path) ? delete_dir($path) : unlink($path);
+    }
+    rmdir($dir);
+}
+
+function walk_dir(string $dir, array $info, int &$count): void
+{
+    foreach (scandir($dir) as $item) {
+        if ($item === '.' || $item === '..') continue;
+        $path = $dir . DIRECTORY_SEPARATOR . $item;
+
+        if (is_dir($path)) {
+            if (!in_array($item, SKIP_DIRS)) walk_dir($path, $info, $count);
+            continue;
+        }
+
+        // Never rewrite this CLI script itself
+        if ($path === KIT_ROOT . DIRECTORY_SEPARATOR . 'wp-kit') continue;
+
+        if (in_array(strtolower(pathinfo($item, PATHINFO_EXTENSION)), SKIP_EXTS)) continue;
+
+        if (process_file($path, $info)) {
+            cli_ok(str_replace(KIT_ROOT . '/', '', $path));
+            $count++;
+        }
+    }
+}
+
+function process_file(string $path, array $info): bool
+{
+    $original = @file_get_contents($path);
+    if ($original === false) return false;
+
+    $replaced = apply_replacements($original, $info);
+    if ($replaced === $original) return false;
+
+    file_put_contents($path, $replaced);
+    return true;
+}
+
+function read_current_plugin_values(): array
+{
+    $configFile   = KIT_ROOT . '/backend/app/Config.php';
+    $composerFile = KIT_ROOT . '/composer.json';
+
+    $src = file_exists($configFile) ? file_get_contents($configFile) : '';
+
+    // namespace RA\RA; → first segment only
+    preg_match('/^namespace\s+([\w]+)\\\\/m', $src, $nsMatch);
+    $ns = $nsMatch[1] ?? 'WPStarterKit';
+
+    preg_match("/const SLUG\s*=\s*'([^']+)'/", $src, $slugMatch);
+    $slug = $slugMatch[1] ?? 'wp-starter-kit';
+
+    preg_match("/const VAR_PREFIX\s*=\s*'([^']+)'/", $src, $prefixMatch);
+    $prefix = rtrim($prefixMatch[1] ?? 'WP_STARTER_KIT_', '_');
+
+    preg_match("/const TITLE\s*=\s*'([^']+)'/", $src, $titleMatch);
+    $name = $titleMatch[1] ?? 'WP Starter Kit';
+
+    $composer = 'john-doe/wp-starter-kit';
+    if (file_exists($composerFile)) {
+        $json = json_decode(file_get_contents($composerFile), true);
+        $composer = $json['name'] ?? $composer;
+    }
+
+    return compact('ns', 'slug', 'prefix', 'name', 'composer');
+}
+
+function apply_replacements(string $content, array $info): string
+{
+    ['name' => $name, 'slug' => $slug, 'prefix' => $prefix,
+     'namespace' => $ns, 'authorName' => $author, 'authorEmail' => $email,
+     'authorUrl' => $url, 'description' => $desc] = $info;
+
+    $composerVendor = strtolower(preg_replace('/\s+/', '-', $author));
+
+    // Read current values from codebase to use as "from" keys
+    $cur = read_current_plugin_values();
+    $cNs     = $cur['namespace'];   // e.g. RA
+    $cSlug   = $cur['slug'];        // e.g. r-a
+    $cPrefix = $cur['prefix'];      // e.g. R_A
+    $cName   = $cur['name'];        // e.g. R A
+    $cComposer = $cur['composer'];  // e.g. ra/r-a
+
+    // Order matters: most specific (longest) first to avoid partial matches
+    $map = [
+        // Composer package name
+        $cComposer                                             => "{$composerVendor}/{$slug}",
+        // Double-escaped namespace for JSON/composer
+        "{$cNs}\\\\{$cNs}\\\\Deps\\\\"                       => "{$ns}\\\\{$ns}\\\\Deps\\\\",
+        "{$cNs}\\\\{$cNs}\\\\"                                => "{$ns}\\\\{$ns}\\\\",
+        // Single-escaped namespace for PHP use statements
+        "{$cNs}\\{$cNs}\\Deps\\"                              => "{$ns}\\{$ns}\\Deps\\",
+        "{$cNs}\\{$cNs}\\"                                    => "{$ns}\\{$ns}\\",
+        "{$cNs}\\{$cNs}"                                      => "{$ns}\\{$ns}",
+        // Pro variants before base
+        "{$cNs}Pro"                                           => "{$ns}Pro",
+        $cNs                                                  => $ns,
+        // Constant prefix (longest first)
+        "{$cPrefix}_PRO_"                                     => "{$prefix}_PRO_",
+        "{$cPrefix}_"                                         => "{$prefix}_",
+        $cPrefix                                              => $prefix,
+        // Slug variants
+        "{$cSlug}-pro"                                        => "{$slug}-pro",
+        $cSlug                                                => $slug,
+        // Display name (longest first)
+        "{$cName} Pro"                                        => "{$name} Pro",
+        $cName                                                => $name,
+    ];
+
+    return str_replace(array_keys($map), array_values($map), $content);
+}
+
+// ── String helpers ────────────────────────────────────────────────────────────
+
+function to_slug(string $s): string
+{
+    return trim(preg_replace('/-+/', '-', preg_replace('/[^a-z0-9-]/', '-', strtolower($s))), '-');
+}
+
+function to_pascal_case(string $s): string
+{
+    return str_replace(' ', '', ucwords(preg_replace('/[^a-zA-Z0-9 ]/', ' ', $s)));
+}
+
+// ── Router ────────────────────────────────────────────────────────────────────
+
+$commands = [
+    'plugin:init' => 'cmd_plugin_init',
+    'plugin:info' => 'cmd_plugin_info',
+];
+
+$cmd = $argv[1] ?? null;
+
+if (!$cmd || in_array($cmd, ['--help', '-h'])) {
+    echo cli_cyan("WP Starter Kit CLI\n\n");
+    echo "Available commands:\n";
+    foreach ($commands as $name => $_) {
+        echo '  ' . cli_green($name) . "\n";
+    }
+    echo "\nUsage: php wp-kit <command>\n";
+    exit(0);
+}
+
+if (!isset($commands[$cmd])) {
+    echo cli_red("Unknown command: {$cmd}\n");
+    echo "Run php wp-kit --help for available commands.\n";
+    exit(1);
+}
+
+$commands[$cmd]();

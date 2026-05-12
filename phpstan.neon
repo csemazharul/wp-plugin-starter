@@ -1,0 +1,15 @@
+parameters:
+    ignoreErrors:
+    level: 0
+    disallowedClasses:
+
+    scanDirectories:
+        - vendor/bitapps
+        - pro/vendor/bitapps
+    
+    paths:
+        - backend
+        - pro/backend
+
+
+# See full example in phpstan-full.neon
