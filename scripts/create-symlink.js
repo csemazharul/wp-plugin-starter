@@ -12,5 +12,5 @@ const [, , sourceDir, destinationDir] = process.argv
 
 fs.symlink(sourceDir, destinationDir, err => {
   if (err) console.error(err)
-  else console.error('WPStarterKitWPStarterKit\WPStarterKitWPStarterKitn Symlink Created Successfully"WPStarterKitWPStarterKit\WPStarterKitWPStarterKitn')
+  else console.error('Symlink Created Successfully')
 })
