@@ -6,10 +6,10 @@
   "type": "module",
   "scripts": {
     "all:test": "pnpm ts && pnpm lint",
-    "build": "concurrently WPStarterKitWPStarterKit\WPStarterKitWPStarterKit"pnpm build:freeWPStarterKitWPStarterKit\WPStarterKitWPStarterKit" WPStarterKitWPStarterKit\WPStarterKitWPStarterKit"pnpm build:proWPStarterKitWPStarterKit\WPStarterKitWPStarterKit"",
+    "build": "concurrently \"pnpm build:free\" \"pnpm build:pro\"",
     "build:free": "tsc && cross-env VITE_PRO=false vite build",
     "build:pro": "tsc && cross-env VITE_PRO=true vite build",
-    "build:silent": "concurrently WPStarterKitWPStarterKit\WPStarterKitWPStarterKit"pnpm build:free -l errorWPStarterKitWPStarterKit\WPStarterKitWPStarterKit" WPStarterKitWPStarterKit\WPStarterKitWPStarterKit"pnpm build:pro -l errorWPStarterKitWPStarterKit\WPStarterKitWPStarterKit"",
+    "build:silent": "concurrently \"pnpm build:free -l error\" \"pnpm build:pro -l error\"",
     "clean": "rm -rf node_modules",
     "dev:free": "cross-env VITE_PRO=false vite",
     "dev:pro": "cross-env VITE_PRO=true vite",
