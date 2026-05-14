@@ -1,14 +1,14 @@
 <?php
 
-namespace WPStarterKit\WPStarterKit\HTTP\Middleware;
+namespace WPStarterKit\HTTP\Middleware;
 
 if (!\defined('ABSPATH')) {
     exit;
 }
 
-use WPStarterKit\WPStarterKit\Config;
-use WPStarterKit\WPStarterKit\Deps\BitApps\WPKit\Http\Request\Request;
-use WPStarterKit\WPStarterKit\Deps\BitApps\WPKit\Http\Response;
+use WPStarterKit\Config;
+use WPStarterKit\Deps\BitApps\WPKit\Http\Request\Request;
+use WPStarterKit\Deps\BitApps\WPKit\Http\Response;
 
 class NonceCheckerMiddleware
 {

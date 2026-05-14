@@ -1,14 +1,14 @@
 <?php
 
-namespace WPStarterKit\WPStarterKit\Providers;
+namespace WPStarterKit\Providers;
 
 if (!\defined('ABSPATH')) {
     exit;
 }
 
-use WPStarterKit\WPStarterKit\Config;
-use WPStarterKit\WPStarterKit\Deps\BitApps\WPKit\Hooks\Hooks;
-use WPStarterKit\WPStarterKit\Deps\BitApps\WPKit\Installer;
+use WPStarterKit\Config;
+use WPStarterKit\Deps\BitApps\WPKit\Hooks\Hooks;
+use WPStarterKit\Deps\BitApps\WPKit\Installer;
 
 final class InstallerProvider
 {
@@ -75,7 +75,7 @@ final class InstallerProvider
     {
         return [
             'path'       => Config::get('BASEDIR') . DIRECTORY_SEPARATOR . 'db' . DIRECTORY_SEPARATOR . 'Migrations' . DIRECTORY_SEPARATOR,
-            'migrations' => ['WPStarterKitPluginOptions'],
+            'migrations' => ['PluginOptions'],
         ];
     }
 
@@ -83,7 +83,7 @@ final class InstallerProvider
     {
         return [
             'path'       => Config::get('BASEDIR') . DIRECTORY_SEPARATOR . 'db' . DIRECTORY_SEPARATOR . 'Migrations' . DIRECTORY_SEPARATOR,
-            'migrations' => ['WPStarterKitPluginOptions'],
+            'migrations' => ['PluginOptions'],
         ];
     }
 }

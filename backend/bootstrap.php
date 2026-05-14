@@ -1,9 +1,9 @@
 <?php
 
-use WPStarterKit\WPStarterKit\Dotenv;
-use WPStarterKit\WPStarterKit\Plugin;
+use WPStarterKit\Dotenv;
+use WPStarterKit\Plugin;
 
-if (!defined('ABSPATH')) {
+if (! defined('ABSPATH')) {
     exit;
 }
 

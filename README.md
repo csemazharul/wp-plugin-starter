@@ -127,7 +127,7 @@ php wp-kit --help        # list all commands
 Define routes in `backend/hooks/api.php`:
 
 ```php
-use WPStarterKit\WPStarterKit\Deps\BitApps\WPKit\Http\Router\Router;
+use WPStarterKit\Deps\BitApps\WPKit\Http\Router\Router;
 
 $router->get('/hello', function () {
     return ['message' => 'Hello from WP Starter Kit'];
@@ -171,7 +171,7 @@ final class CreateMyTable extends Migration
 Register it in `InstallerProvider::migration()`:
 
 ```php
-'migrations' => ['WPStarterKitPluginOptions', 'CreateMyTable'],
+'migrations' => ['PluginOptions', 'CreateMyTable'],
 ```
 
 ---

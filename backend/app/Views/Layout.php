@@ -1,14 +1,14 @@
 <?php
 
-namespace WPStarterKit\WPStarterKit\Views;
+namespace WPStarterKit\Views;
 
 if (!\defined('ABSPATH')) {
     exit;
 }
 
-use WPStarterKit\WPStarterKit\Config;
-use WPStarterKit\WPStarterKit\Deps\BitApps\WPKit\Hooks\Hooks;
-use WPStarterKit\WPStarterKit\Deps\BitApps\WPKit\Utils\Capabilities;
+use WPStarterKit\Config;
+use WPStarterKit\Deps\BitApps\WPKit\Hooks\Hooks;
+use WPStarterKit\Deps\BitApps\WPKit\Utils\Capabilities;
 
 final class Layout
 {

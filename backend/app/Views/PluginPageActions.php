@@ -1,12 +1,12 @@
 <?php
 
-namespace WPStarterKit\WPStarterKit\Views;
+namespace WPStarterKit\Views;
 
 if (!\defined('ABSPATH')) {
     exit;
 }
 
-use WPStarterKit\WPStarterKit\Config;
+use WPStarterKit\Config;
 
 class PluginPageActions
 {

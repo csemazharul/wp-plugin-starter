@@ -1,9 +1,9 @@
 <?php
-namespace WPStarterKit\WPStarterKit;
+namespace WPStarterKit;
 
-use WPStarterKit\WPStarterKit\src\Menu;
-use WPStarterKit\WPStarterKit\Views\Body;
-use WPStarterKit\WPStarterKit\Views\PluginPageActions;
+use WPStarterKit\src\Menu;
+use WPStarterKit\Views\Body;
+use WPStarterKit\Views\PluginPageActions;
 
 if (! \defined('ABSPATH')) {
     exit;
@@ -12,6 +12,8 @@ if (! \defined('ABSPATH')) {
 class Config
 {
     public const SLUG = 'wp-starter-kit';
+
+    public const REST_NAMESPACE = 'WPStarterKit';
 
     public const PRO_PLUGIN_SLUG = 'wp-starter-kit-pro';
 
@@ -68,7 +70,7 @@ class Config
                 global $wp_rewrite;
 
                 return [
-                    'base'      => get_rest_url(null, self::SLUG . '/v1'),
+                    'base'      => get_rest_url(null, self::REST_NAMESPACE . '/v1'),
                     'separator' => $wp_rewrite->permalink_structure ? '?' : '&',
                 ];
 

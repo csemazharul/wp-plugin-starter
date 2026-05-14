@@ -1,6 +1,6 @@
 <?php
 
-use WPStarterKit\WPStarterKit\Deps\BitApps\WPKit\Http\Router\Route;
+use WPStarterKit\Deps\BitApps\WPKit\Http\Router\Route;
 
 if (! defined('ABSPATH')) {
     exit;

@@ -1,13 +1,13 @@
 <?php
 
-namespace WPStarterKit\WPStarterKit\Views;
+namespace WPStarterKit\Views;
 
 if (!\defined('ABSPATH')) {
     exit;
 }
 
-use WPStarterKit\WPStarterKit\Config;
-use WPStarterKit\WPStarterKit\Deps\BitApps\WPKit\Hooks\Hooks;
+use WPStarterKit\Config;
+use WPStarterKit\Deps\BitApps\WPKit\Hooks\Hooks;
 
 final class HtmlTagModifier
 {

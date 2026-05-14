@@ -37,10 +37,8 @@ function cmd_plugin_init(): void
 
     $info = collect_plugin_info();
 
-    echo "\n" . cli_cyan("Summary\n");
-    foreach ($info as $k => $v) {
-        echo '  ' . str_pad($k, 16) . ': ' . cli_yellow($v) . "\n";
-    }
+    echo "\n" . cli_bold(cli_green("Congratulations! Your plugin is ready to develop.\n"));
+    render_summary_table($info);
 
     echo "\n";
     if (!cli_confirm('Proceed and replace all placeholders?')) {
@@ -49,11 +47,13 @@ function cmd_plugin_init(): void
     }
 
     echo "\n";
-    rename_main_file($info['slug']);
+    // Order matters: apply_replacements reads CURRENT values from Config.php as
+    // "from" keys, so it must run BEFORE Config.php is rewritten with new values.
     process_all_files($info);
+    update_config_constants($info);
+    create_main_file($info);
     run_composer_install();
-
-    echo "\n" . cli_bold(cli_green("Congratulations! Your plugin is ready to develop.\n\n"));
+    self_delete_cli();
 }
 
 function cmd_plugin_info(): void
@@ -75,37 +75,24 @@ function cmd_plugin_info(): void
 
 function collect_plugin_info(): array
 {
-    $name = cli_require('Enter the plugin name');
+    $name = cli_ask('Enter the plugin name', 'WP Starter Kit');
 
     $defaultSlug = to_slug($name);
     $slug = cli_require_slug('Enter the plugin slug', $defaultSlug);
 
-    $defaultPrefix = strtoupper(str_replace('-', '_', $slug));
-    $rawPrefix = cli_ask('Enter the plugin prefix [space, hyphen will be converted to _]', $defaultPrefix);
-    $prefix = strtoupper(preg_replace('/[\s\-]+/', '_', trim($rawPrefix)));
+    $defaultPrefix = rtrim(str_replace('-', '_', $slug), '_');
+    $rawPrefix = cli_ask('Enter the plugin prefix[space,hyphen will be converted to _]', $defaultPrefix);
+    $prefix = rtrim(strtolower(preg_replace('/[\s\-]+/', '_', trim($rawPrefix))), '_');
 
-    $rawApi = cli_ask('Enter the REST API namespace [space, hyphen will be converted to _]', $slug);
-    $apiNs  = preg_replace('/[\s\-]+/', '_', trim($rawApi));
+    $defaultRest = to_pascal_case($name);
+    $rawRest = cli_ask('Enter the REST API namespace[space,hyphen will be converted to _]', $defaultRest);
+    $restNs  = preg_replace('/[\s\-]+/', '_', trim($rawRest));
 
     $defaultNs = to_pascal_case($name);
     $namespace = cli_ask('Enter the app root namespace', $defaultNs);
     $namespace = $namespace !== '' ? $namespace : $defaultNs;
 
-    $authorName  = cli_ask('Enter author name', 'Your Name');
-    $authorEmail = cli_ask('Enter author email', 'you@example.com');
-    $authorUrl   = cli_ask('Enter author URL', 'https://example.com');
-    $description = cli_ask('Enter plugin description', 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAA');
-
-    return compact('name', 'slug', 'prefix', 'apiNs', 'namespace', 'authorName', 'authorEmail', 'authorUrl', 'description');
-}
-
-function cli_require(string $prompt): string
-{
-    while (true) {
-        $val = cli_ask($prompt);
-        if ($val !== '') return $val;
-        echo cli_red("  This field is required.\n");
-    }
+    return compact('name', 'slug', 'prefix', 'restNs', 'namespace');
 }
 
 function cli_require_slug(string $prompt, string $default): string
@@ -118,32 +105,128 @@ function cli_require_slug(string $prompt, string $default): string
     }
 }
 
+// ── Summary table ─────────────────────────────────────────────────────────────
+
+function render_summary_table(array $info): void
+{
+    $rows = [
+        ['Plugin Name',        $info['name']],
+        ['Plugin Slug',        $info['slug']],
+        ['Plugin Prefix',      $info['prefix']],
+        ['REST API Namespace', $info['restNs']],
+        ['Root Namespace',     $info['namespace']],
+    ];
+
+    $autoload = KIT_ROOT . '/vendor/autoload.php';
+    if (file_exists($autoload)) {
+        require_once $autoload;
+    }
+
+    if (class_exists(\Symfony\Component\Console\Helper\Table::class)) {
+        $output = new \Symfony\Component\Console\Output\ConsoleOutput();
+        $table  = new \Symfony\Component\Console\Helper\Table($output);
+        $table->setHeaderTitle('Info');
+        $table->setRows($rows);
+        $table->render();
+        return;
+    }
+
+    $labelWidth = max(array_map(fn ($r) => strlen($r[0]), $rows));
+    $valueWidth = max(array_map(fn ($r) => strlen($r[1]), $rows));
+    $line       = '+' . str_repeat('-', $labelWidth + 2) . '+' . str_repeat('-', $valueWidth + 2) . '+';
+    echo $line . "\n";
+    foreach ($rows as [$k, $v]) {
+        printf("| %-{$labelWidth}s | %-{$valueWidth}s |\n", $k, $v);
+    }
+    echo $line . "\n";
+}
+
 // ── File processing ───────────────────────────────────────────────────────────
 
 const SKIP_DIRS = ['node_modules', '.git', 'vendor', 'assets', 'dependencies', 'build', 'dist'];
-const SKIP_EXTS = ['png','jpg','jpeg','gif','svg','ico','woff','woff2','ttf','eot','map'];
+const SKIP_EXTS = ['png','jpg','jpeg','gif','svg','ico','woff','woff2','ttf','eot','map','lock'];
 
-function rename_main_file(string $slug): void
+function update_config_constants(array $info): void
 {
-    // Find the current main plugin file by looking for a .php file with Plugin Name header
-    $from = null;
+    $configFile = KIT_ROOT . '/backend/app/Config.php';
+    if (!file_exists($configFile)) return;
+
+    $src = file_get_contents($configFile);
+
+    $upperPrefix = strtoupper($info['prefix']) . '_';
+
+    $constants = [
+        'SLUG'                 => $info['slug'],
+        'REST_NAMESPACE'       => $info['restNs'],
+        'PRO_PLUGIN_SLUG'      => $info['slug'] . '-pro',
+        'TITLE'                => $info['name'],
+        'VAR_PREFIX'           => $upperPrefix,
+        'CLASS_PREFIX'         => $info['namespace'],
+        'PRO_PLUGIN_NAMESPACE' => $info['namespace'] . 'Pro\\\\',
+    ];
+
+    foreach ($constants as $name => $value) {
+        $pattern     = "/(const {$name}\s*=\s*)'[^']*'/";
+        $replacement = "$1'" . addslashes($value) . "'";
+        $src = preg_replace($pattern, $replacement, $src);
+    }
+
+    file_put_contents($configFile, $src);
+    cli_ok('Updated Config.php constants.');
+}
+
+function create_main_file(array $info): void
+{
+    $name = $info['name'];
+    $slug = $info['slug'];
+
+    $tpl = <<<PHP
+<?php
+/**
+ * Plugin Name:  {$name}
+ * Plugin URI:   https://example.com/{$slug}
+ * Description:  {$name} plugin.
+ * Version:      1.0.0
+ * Author:       Your Name
+ * Author URI:   https://example.com
+ * Text Domain:  {$slug}
+ * Requires PHP: 7.4
+ * Requires WP:  5.0
+ * Domain Path:  /languages
+ * License:      GPL-2.0-or-later
+ */
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+require_once plugin_dir_path(__FILE__) . 'backend/bootstrap.php';
+
+PHP;
+
+    // Remove any stale main file at root before writing the new one.
     foreach (glob(KIT_ROOT . '/*.php') as $f) {
-        $contents = file_get_contents($f);
-        if (strpos($contents, 'Plugin Name:') !== false) {
-            $from = $f;
-            break;
+        if ($f === KIT_ROOT . "/{$slug}.php") continue;
+        $contents = @file_get_contents($f);
+        if ($contents !== false && strpos($contents, 'Plugin Name:') !== false) {
+            @unlink($f);
+            cli_ok('Removed stale ' . basename($f) . '.');
         }
     }
 
-    if (!$from) return;
+    $path = KIT_ROOT . "/{$slug}.php";
+    file_put_contents($path, $tpl)
+        ? cli_ok("Created {$slug}.php")
+        : cli_err("Could not create {$slug}.php");
+}
 
-    $to = KIT_ROOT . "/{$slug}.php";
-    if ($from === $to) return;
-
-    $basename = basename($from);
-    rename($from, $to)
-        ? cli_ok("Renamed {$basename} → {$slug}.php")
-        : cli_err('Could not rename main plugin file.');
+function self_delete_cli(): void
+{
+    $path = KIT_ROOT . '/wp-kit';
+    if (@unlink($path)) {
+        cli_ok('Removed wp-kit CLI (no longer needed).');
+    } else {
+        cli_err('Could not delete wp-kit. Remove manually: rm wp-kit');
+    }
 }
 
 function process_all_files(array $info): void
@@ -195,7 +278,6 @@ function walk_dir(string $dir, array $info, int &$count): void
             continue;
         }
 
-        // Never rewrite this CLI script itself
         if ($path === KIT_ROOT . DIRECTORY_SEPARATOR . 'wp-kit') continue;
 
         if (in_array(strtolower(pathinfo($item, PATHINFO_EXTENSION)), SKIP_EXTS)) continue;
@@ -219,25 +301,74 @@ function process_file(string $path, array $info): bool
     return true;
 }
 
-function read_current_plugin_values(): array
+// ── Replacement ───────────────────────────────────────────────────────────────
+
+function discover_namespace_roots(): array
+{
+    // Scan backend/ for actual `namespace X[\Y];` declarations + composer.json
+    // autoload PSR-4 keys. Returns ['Root' => 'doubled'|'flat'] per distinct first segment.
+    $roots = [];
+    $backend = KIT_ROOT . '/backend';
+    if (is_dir($backend)) {
+        $rdi = new RecursiveDirectoryIterator($backend, RecursiveDirectoryIterator::SKIP_DOTS);
+        $it  = new RecursiveIteratorIterator($rdi);
+        foreach ($it as $f) {
+            if (!$f->isFile() || strtolower($f->getExtension()) !== 'php') continue;
+            $src = @file_get_contents($f->getPathname());
+            if ($src === false) continue;
+            if (!preg_match_all('/^namespace\s+([\w\\\\]+);/m', $src, $matches)) continue;
+            foreach ($matches[1] as $nsDecl) {
+                $parts = explode('\\', $nsDecl);
+                $root  = $parts[0];
+                $doubled = isset($parts[1]) && $parts[1] === $root;
+                if (!isset($roots[$root]) || $doubled) {
+                    $roots[$root] = $doubled ? 'doubled' : 'flat';
+                }
+            }
+        }
+    }
+
+    $composerFile = KIT_ROOT . '/composer.json';
+    if (file_exists($composerFile)) {
+        $json = json_decode(file_get_contents($composerFile), true) ?: [];
+        $psr4Keys = array_merge(
+            array_keys($json['autoload']['psr-4'] ?? []),
+            array_keys($json['autoload-dev']['psr-4'] ?? [])
+        );
+        foreach ($psr4Keys as $key) {
+            $segs = array_values(array_filter(explode('\\', rtrim($key, '\\'))));
+            if (!$segs) continue;
+            $root = $segs[0];
+            $doubled = isset($segs[1]) && $segs[1] === $root;
+            if (!isset($roots[$root]) || $doubled) {
+                $roots[$root] = $doubled ? 'doubled' : 'flat';
+            }
+        }
+    }
+
+    return $roots;
+}
+
+function read_current_simple_values(): array
 {
     $configFile   = KIT_ROOT . '/backend/app/Config.php';
     $composerFile = KIT_ROOT . '/composer.json';
 
     $src = file_exists($configFile) ? file_get_contents($configFile) : '';
 
-    // namespace RA\RA; → first segment only
-    preg_match('/^namespace\s+([\w]+)\\\\/m', $src, $nsMatch);
-    $ns = $nsMatch[1] ?? 'WPStarterKit';
-
     preg_match("/const SLUG\s*=\s*'([^']+)'/", $src, $slugMatch);
     $slug = $slugMatch[1] ?? 'wp-starter-kit';
 
-    preg_match("/const VAR_PREFIX\s*=\s*'([^']+)'/", $src, $prefixMatch);
-    $prefix = rtrim($prefixMatch[1] ?? 'WP_STARTER_KIT_', '_');
+    preg_match("/const VAR_PREFIX\s*=\s*'([^']+)'/", $src, $varPrefixMatch);
+    $varPrefix   = $varPrefixMatch[1] ?? 'WP_STARTER_KIT_';
+    $funcPrefix  = strtolower($varPrefix);                   // e.g. wp_starter_kit_
+    $constPrefix = rtrim($varPrefix, '_');                    // e.g. WP_STARTER_KIT
 
     preg_match("/const TITLE\s*=\s*'([^']+)'/", $src, $titleMatch);
     $name = $titleMatch[1] ?? 'WP Starter Kit';
+
+    preg_match("/const REST_NAMESPACE\s*=\s*'([^']+)'/", $src, $restMatch);
+    $restNs = $restMatch[1] ?? $slug;
 
     $composer = 'john-doe/wp-starter-kit';
     if (file_exists($composerFile)) {
@@ -245,50 +376,57 @@ function read_current_plugin_values(): array
         $composer = $json['name'] ?? $composer;
     }
 
-    return compact('ns', 'slug', 'prefix', 'name', 'composer');
+    return compact('slug', 'funcPrefix', 'constPrefix', 'name', 'restNs', 'composer');
 }
 
 function apply_replacements(string $content, array $info): string
 {
-    ['name' => $name, 'slug' => $slug, 'prefix' => $prefix,
-     'namespace' => $ns, 'authorName' => $author, 'authorEmail' => $email,
-     'authorUrl' => $url, 'description' => $desc] = $info;
+    $name      = $info['name'];
+    $slug      = $info['slug'];
+    $prefix    = $info['prefix'];                    // e.g. wp_starter_kit
+    $funcPref  = $prefix . '_';                       // e.g. wp_starter_kit_
+    $constPref = strtoupper($prefix);                 // e.g. WP_STARTER_KIT
+    $restNs    = $info['restNs'];
+    $ns        = $info['namespace'];
 
-    $composerVendor = strtolower(preg_replace('/\s+/', '-', $author));
+    $cur = read_current_simple_values();
+    [$curVendor] = explode('/', $cur['composer'], 2) + ['john-doe'];
 
-    // Read current values from codebase to use as "from" keys
-    $cur = read_current_plugin_values();
-    $cNs     = $cur['namespace'];   // e.g. RA
-    $cSlug   = $cur['slug'];        // e.g. r-a
-    $cPrefix = $cur['prefix'];      // e.g. R_A
-    $cName   = $cur['name'];        // e.g. R A
-    $cComposer = $cur['composer'];  // e.g. ra/r-a
-
-    // Order matters: most specific (longest) first to avoid partial matches
     $map = [
-        // Composer package name
-        $cComposer                                             => "{$composerVendor}/{$slug}",
-        // Double-escaped namespace for JSON/composer
-        "{$cNs}\\\\{$cNs}\\\\Deps\\\\"                       => "{$ns}\\\\{$ns}\\\\Deps\\\\",
-        "{$cNs}\\\\{$cNs}\\\\"                                => "{$ns}\\\\{$ns}\\\\",
-        // Single-escaped namespace for PHP use statements
-        "{$cNs}\\{$cNs}\\Deps\\"                              => "{$ns}\\{$ns}\\Deps\\",
-        "{$cNs}\\{$cNs}\\"                                    => "{$ns}\\{$ns}\\",
-        "{$cNs}\\{$cNs}"                                      => "{$ns}\\{$ns}",
-        // Pro variants before base
-        "{$cNs}Pro"                                           => "{$ns}Pro",
-        $cNs                                                  => $ns,
-        // Constant prefix (longest first)
-        "{$cPrefix}_PRO_"                                     => "{$prefix}_PRO_",
-        "{$cPrefix}_"                                         => "{$prefix}_",
-        $cPrefix                                              => $prefix,
-        // Slug variants
-        "{$cSlug}-pro"                                        => "{$slug}-pro",
-        $cSlug                                                => $slug,
-        // Display name (longest first)
-        "{$cName} Pro"                                        => "{$name} Pro",
-        $cName                                                => $name,
+        $cur['composer'] => "{$curVendor}/{$slug}",
     ];
+
+    // Namespace roots: for every distinct legacy root in backend/ or composer.json,
+    // produce doubled→flat OR flat→flat replacement entries.
+    $roots = discover_namespace_roots();
+    foreach ($roots as $cNs => $cNsForm) {
+        if ($cNs === $ns && $cNsForm === 'flat') continue;
+        if ($cNsForm === 'doubled') {
+            $map["{$cNs}\\\\{$cNs}\\\\Deps\\\\"] = "{$ns}\\\\Deps\\\\";
+            $map["{$cNs}\\\\{$cNs}\\\\"]         = "{$ns}\\\\";
+            $map["{$cNs}\\{$cNs}\\Deps\\"]       = "{$ns}\\Deps\\";
+            $map["{$cNs}\\{$cNs}\\"]             = "{$ns}\\";
+            $map["{$cNs}\\{$cNs}"]               = "{$ns}";
+        }
+        $map["{$cNs}Pro"] = "{$ns}Pro";
+        $map[$cNs]        = $ns;
+    }
+
+    // Const prefix (uppercase, longest first)
+    $map["{$cur['constPrefix']}_PRO_"] = "{$constPref}_PRO_";
+    $map["{$cur['constPrefix']}_"]     = "{$constPref}_";
+    $map[$cur['constPrefix']]          = $constPref;
+
+    // Function prefix (lowercase + _)
+    $map[$cur['funcPrefix']] = $funcPref;
+
+    // Slug variants
+    $map["{$cur['slug']}-pro"] = "{$slug}-pro";
+    $map[$cur['slug']]         = $slug;
+
+    // Display name (longest first)
+    $map["{$cur['name']} Pro"] = "{$name} Pro";
+    $map[$cur['name']]         = $name;
 
     return str_replace(array_keys($map), array_values($map), $content);
 }

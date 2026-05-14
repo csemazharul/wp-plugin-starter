@@ -1,23 +1,23 @@
 <?php
 
-namespace WPStarterKit\WPStarterKit;
+namespace WPStarterKit;
 
 // Prevent direct script access
 if (!\defined('ABSPATH')) {
     exit;
 }
 
-use WPStarterKit\WPStarterKit\Deps\BitApps\WPKit\Hooks\Hooks;
-use WPStarterKit\WPStarterKit\Deps\BitApps\WPKit\Http\RequestType;
-use WPStarterKit\WPStarterKit\Deps\BitApps\WPKit\Migration\MigrationHelper;
-use WPStarterKit\WPStarterKit\Deps\BitApps\WPKit\Utils\Capabilities;
-use WPStarterKit\WPStarterKit\HTTP\Middleware\AdminCheckerMiddleware;
-use WPStarterKit\WPStarterKit\HTTP\Middleware\NonceCheckerMiddleware;
-use WPStarterKit\WPStarterKit\Providers\HookProvider;
-use WPStarterKit\WPStarterKit\Providers\InstallerProvider;
-use WPStarterKit\WPStarterKit\Views\HtmlTagModifier;
-use WPStarterKit\WPStarterKit\Views\Layout;
-use WPStarterKit\WPStarterKit\Views\PluginPageActions;
+use WPStarterKit\Deps\BitApps\WPKit\Hooks\Hooks;
+use WPStarterKit\Deps\BitApps\WPKit\Http\RequestType;
+use WPStarterKit\Deps\BitApps\WPKit\Migration\MigrationHelper;
+use WPStarterKit\Deps\BitApps\WPKit\Utils\Capabilities;
+use WPStarterKit\HTTP\Middleware\AdminCheckerMiddleware;
+use WPStarterKit\HTTP\Middleware\NonceCheckerMiddleware;
+use WPStarterKit\Providers\HookProvider;
+use WPStarterKit\Providers\InstallerProvider;
+use WPStarterKit\Views\HtmlTagModifier;
+use WPStarterKit\Views\Layout;
+use WPStarterKit\Views\PluginPageActions;
 
 final class Plugin
 {

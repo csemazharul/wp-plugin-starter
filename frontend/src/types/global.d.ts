@@ -70,8 +70,8 @@ type DeepReadonly<T> = T extends Builtin
             ? ReadonlySet<DeepReadonly<U>>
             : T extends WeakSet<infer U>
               ? WeakSet<DeepReadonly<U>>
-              : T extends WPStarterKitWPStarterKitPromise<infer U>
-                ? WPStarterKitWPStarterKitPromise<DeepReadonly<U>>
+              : T extends WPStarterKitPromise<infer U>
+                ? WPStarterKitPromise<DeepReadonly<U>>
                 : T extends object
                   ? { readonly [K in keyof T]: DeepReadonly<T[K]> }
                   : T

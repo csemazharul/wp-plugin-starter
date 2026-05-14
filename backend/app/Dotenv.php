@@ -1,10 +1,10 @@
 <?php
+namespace WPStarterKit;
 
-namespace WPStarterKit\WPStarterKit;
-
+use WPStarterKit\Config;
 use WP_CLI;
 
-if (!\defined('ABSPATH')) {
+if (! \defined('ABSPATH')) {
     exit;
 }
 
@@ -12,7 +12,7 @@ final class Dotenv
 {
     public static function load($path = '')
     {
-        if (!file_exists($path)) {
+        if (! file_exists($path)) {
             return false;
         }
 
@@ -45,7 +45,7 @@ final class Dotenv
                 $value = strtolower($value) == 'true'; // Converts to boolean
             }
 
-            if (!\array_key_exists($name, $_ENV)) {
+            if (! \array_key_exists($name, $_ENV)) {
                 $_ENV[$name] = $value;
             }
         }
@@ -67,7 +67,7 @@ final class Dotenv
 
         foreach ($lines as &$line) {
             if (preg_match($pattern, $line)) {
-                $line = $envKeyValue;
+                $line  = $envKeyValue;
                 $found = true;
 
                 break;
@@ -76,7 +76,7 @@ final class Dotenv
 
         unset($line);
 
-        if (!$found) {
+        if (! $found) {
             $lines[] = $envKeyValue;
         }
 

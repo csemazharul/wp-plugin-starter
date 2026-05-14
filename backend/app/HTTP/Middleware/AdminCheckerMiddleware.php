@@ -1,13 +1,13 @@
 <?php
 
-namespace WPStarterKit\WPStarterKit\HTTP\Middleware;
+namespace WPStarterKit\HTTP\Middleware;
 
 if (!\defined('ABSPATH')) {
     exit;
 }
 
-use WPStarterKit\WPStarterKit\Deps\BitApps\WPKit\Http\Response;
-use WPStarterKit\WPStarterKit\Deps\BitApps\WPKit\Utils\Capabilities;
+use WPStarterKit\Deps\BitApps\WPKit\Http\Response;
+use WPStarterKit\Deps\BitApps\WPKit\Utils\Capabilities;
 
 class AdminCheckerMiddleware
 {

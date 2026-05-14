@@ -1,13 +1,13 @@
 <?php
 
-namespace WPStarterKit\WPStarterKit\Views;
+namespace WPStarterKit\Views;
 
 if (!\defined('ABSPATH')) {
     exit;
 }
 
-use WPStarterKit\WPStarterKit\Config;
-use WPStarterKit\WPStarterKit\Deps\BitApps\WPKit\Helpers\DateTimeHelper;
+use WPStarterKit\Config;
+use WPStarterKit\Deps\BitApps\WPKit\Helpers\DateTimeHelper;
 
 class Head
 {

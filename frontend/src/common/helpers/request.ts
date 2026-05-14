@@ -87,7 +87,7 @@ export default async function queryRequest<T>(
   queryParam?: QueryParam,
   method: MethodType = 'POST',
   options?: RequestOptions
-): WPStarterKitWPStarterKitPromise<Response<T>> {
+): WPStarterKitPromise<Response<T>> {
   const uri = createUrl(action, queryParam)
   const fetchOptions = createRequestOptions(method, data, options)
 
@@ -114,10 +114,10 @@ export async function request<T>(
   queryParam?: QueryParam,
   method: MethodType = 'POST',
   options?: RequestOptions
-): WPStarterKitWPStarterKitPromise<Response<T>> {
+): WPStarterKitPromise<Response<T>> {
   return queryRequest<T>(action, data, queryParam, method, options).catch(error => error as Response<T>)
 }
 
-export async function proxyRequest<T>(data: EndpointType): WPStarterKitWPStarterKitPromise<Response<T>> {
+export async function proxyRequest<T>(data: EndpointType): WPStarterKitPromise<Response<T>> {
   return queryRequest<T>('proxy/route', data).catch(error => error as Response<T>)
 }

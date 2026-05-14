@@ -1,16 +1,16 @@
 <?php
 
-namespace WPStarterKit\WPStarterKit\Providers;
+namespace WPStarterKit\Providers;
 
 if (!\defined('ABSPATH')) {
     exit;
 }
 
-use WPStarterKit\WPStarterKit\Config;
-use WPStarterKit\WPStarterKit\Deps\BitApps\WPKit\Hooks\Hooks;
-use WPStarterKit\WPStarterKit\Deps\BitApps\WPKit\Http\RequestType;
-use WPStarterKit\WPStarterKit\Deps\BitApps\WPKit\Http\Router\Router;
-use WPStarterKit\WPStarterKit\Plugin;
+use WPStarterKit\Config;
+use WPStarterKit\Deps\BitApps\WPKit\Hooks\Hooks;
+use WPStarterKit\Deps\BitApps\WPKit\Http\RequestType;
+use WPStarterKit\Deps\BitApps\WPKit\Http\Router\Router;
+use WPStarterKit\Plugin;
 
 class HookProvider
 {
@@ -29,7 +29,7 @@ class HookProvider
             is_readable($this->_pluginBackend . 'hooks' . DIRECTORY_SEPARATOR . 'api.php')
             && RequestType::is(RequestType::API)
         ) {
-            $router = new Router(RequestType::API, Config::SLUG, 'v1');
+            $router = new Router(RequestType::API, Config::REST_NAMESPACE, 'v1');
             include $this->_pluginBackend . 'hooks' . DIRECTORY_SEPARATOR . 'api.php';
             $router->register();
         }

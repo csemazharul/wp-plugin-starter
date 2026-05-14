@@ -1,14 +1,14 @@
 <?php
 
-use WPStarterKit\WPStarterKit;
-use WPStarterKit\WPStarterKit\WPStarterKit\WPStarterKit as DB;
-use WPStarterKit\WPStarterKit\WPStarterKit\WPStarterKit\WPStarterKitWPStarterKitMigration;
+// use WPStarterKit\WPStarterKit as DB;
+use WPStarterKit\Config;
+use WPStarterKit\Deps\BitApps\WPKit\Migration\Migration;
 
-if (!defined('ABSPATH')) {
+if (! defined('ABSPATH')) {
     exit;
 }
 
-final class RAPluginOptions extends Migration
+final class PluginOptions extends Migration
 {
     public function up(): void
     {
@@ -28,15 +28,15 @@ final class RAPluginOptions extends Migration
         DB::query(
             DB::prepare(
                 'DELETE FROM `' . DB::wpPrefix() . 'options` WHERE option_name in ('
-                    . implode(
-                        ',',
-                        array_map(
-                            function () {
-                                return '%s';
-                            },
-                            $pluginOptions
-                        )
-                    ) . ')',
+                . implode(
+                    ',',
+                    array_map(
+                        function () {
+                            return '%s';
+                        },
+                        $pluginOptions
+                    )
+                ) . ')',
                 $pluginOptions
             )
         );

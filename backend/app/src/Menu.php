@@ -1,13 +1,13 @@
 <?php
 
-namespace WPStarterKit\WPStarterKit\src;
+namespace WPStarterKit\src;
 
 if (!\defined('ABSPATH')) {
     exit;
 }
 
-use WPStarterKit\WPStarterKit\Config;
-use WPStarterKit\WPStarterKit\Views\Body;
+use WPStarterKit\Config;
+use WPStarterKit\Views\Body;
 
 final class Menu
 {

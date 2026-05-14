@@ -27,7 +27,7 @@ html {
   height: 100%;
 }
 
-#bit-apps-root * {
+#wp-starter-kit-root * {
   box-sizing: border-box;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -57,7 +57,7 @@ svg {
   animation: skeleton 1s infinite ease-out;
 }
 
-#bit-apps-root {
+#wp-starter-kit-root {
   direction: ltr;
   font-family: var(--font-family);
   -webkit-font-smoothing: antialiased;
