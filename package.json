@@ -132,7 +132,7 @@
     "@vitest/ui": "^3.0.8",
     "@wordpress/i18n": "^5.19.0",
     "autoprefixer": "^10.4.21",
-    "bitapps-dev-utils": "github:Bit-Apps-WPStarterKitWPStarterKitPro/bitapps-dev-utils#d8beb5f184cfe84385e60f91e4c7ed6c08bdb799",
+    "bitapps-dev-utils": "github:Bit-Apps-Pro/bitapps-dev-utils#9687003a3bc25902aaf82cfe7408041b33b3dba8",
     "commander": "12.1.0",
     "concurrently": "^9.1.2",
     "conventional-changelog-atom": "^5.0.0",
