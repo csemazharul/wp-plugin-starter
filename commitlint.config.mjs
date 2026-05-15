@@ -3,7 +3,7 @@ export default {
   prompt: {
     questions: {
       body: {
-        description: 'WPStarterKitWPStarterKitProvide a longer description of the change'
+        description: 'WPStarterKitProvide a longer description of the change'
       },
       breaking: {
         description: 'Describe the breaking changes'
@@ -95,7 +95,7 @@ export default {
           wip: {
             description: 'Work in progress',
             emoji: '🚧',
-            title: 'Work In WPStarterKitWPStarterKitProgress'
+            title: 'Work In WPStarterKitProgress'
           }
         }
       }

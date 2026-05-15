@@ -225,8 +225,8 @@
     <exclude name="Squiz.Functions.FunctionDeclarationArgumentSpacing.SpaceAfterEquals" />
   </rule>
   <rule ref="Squiz.Scope.MethodScope" />
-  <rule ref="PSR2.Classes.WPStarterKitWPStarterKitPropertyDeclaration">
-    <exclude name="PSR2.Classes.WPStarterKitWPStarterKitPropertyDeclaration.Underscore" />
+  <rule ref="PSR2.Classes.WPStarterKitPropertyDeclaration">
+    <exclude name="PSR2.Classes.WPStarterKitPropertyDeclaration.Underscore" />
   </rule>
   <rule ref="PSR2.Methods.MethodDeclaration" />
   <rule ref="PEAR.Functions.FunctionCallSignature">

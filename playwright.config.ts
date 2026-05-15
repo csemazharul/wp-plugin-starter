@@ -18,7 +18,7 @@ export default defineConfig({
   fullyParallel: true,
   /* Configure projects for major browsers */
   projects: [
-    { name: 'setup', testMatch: /.*WPStarterKitWPStarterKit\WPStarterKitWPStarterKit.setupWPStarterKitWPStarterKit\WPStarterKitWPStarterKit.ts/, use: { ignoreHTTPSErrors: true } },
+    { name: 'setup', testMatch: /.*WPStarterKit\WPStarterKit.setupWPStarterKit\WPStarterKit.ts/, use: { ignoreHTTPSErrors: true } },
 
     {
       dependencies: ['setup'],

@@ -292,8 +292,8 @@ importers:
         specifier: ^10.4.21
         version: 10.4.21(postcss@8.5.6)
       bitapps-dev-utils:
-        specifier: github:Bit-Apps-WPStarterKitWPStarterKitPro/bitapps-dev-utils#d8beb5f184cfe84385e60f91e4c7ed6c08bdb799
-        version: https://codeload.github.com/Bit-Apps-WPStarterKitWPStarterKitPro/bitapps-dev-utils/tar.gz/d8beb5f184cfe84385e60f91e4c7ed6c08bdb799(lodash@4.17.21)
+        specifier: github:Bit-Apps-WPStarterKitPro/bitapps-dev-utils#d8beb5f184cfe84385e60f91e4c7ed6c08bdb799
+        version: https://codeload.github.com/Bit-Apps-WPStarterKitPro/bitapps-dev-utils/tar.gz/d8beb5f184cfe84385e60f91e4c7ed6c08bdb799(lodash@4.17.21)
       commander:
         specifier: 12.1.0
         version: 12.1.0
@@ -3483,8 +3483,8 @@ packages:
     resolution: {integrity: sha512-Ceh+7ox5qe7LJuLHoY0feh3pHuUDHAcRUeyL2VYghZwfpkNIy/+8Ocg0a3UuSoYzavmylwuLWQOf3hl0jjMMIw==}
     engines: {node: '>=8'}
 
-  bitapps-dev-utils@https://codeload.github.com/Bit-Apps-WPStarterKitWPStarterKitPro/bitapps-dev-utils/tar.gz/d8beb5f184cfe84385e60f91e4c7ed6c08bdb799:
-    resolution: {tarball: https://codeload.github.com/Bit-Apps-WPStarterKitWPStarterKitPro/bitapps-dev-utils/tar.gz/d8beb5f184cfe84385e60f91e4c7ed6c08bdb799}
+  bitapps-dev-utils@https://codeload.github.com/Bit-Apps-WPStarterKitPro/bitapps-dev-utils/tar.gz/d8beb5f184cfe84385e60f91e4c7ed6c08bdb799:
+    resolution: {tarball: https://codeload.github.com/Bit-Apps-WPStarterKitPro/bitapps-dev-utils/tar.gz/d8beb5f184cfe84385e60f91e4c7ed6c08bdb799}
     version: 1.0.1
     hasBin: true
     peerDependencies:
@@ -11641,7 +11641,7 @@ snapshots:
 
   binary-extensions@2.3.0: {}
 
-  bitapps-dev-utils@https://codeload.github.com/Bit-Apps-WPStarterKitWPStarterKitPro/bitapps-dev-utils/tar.gz/d8beb5f184cfe84385e60f91e4c7ed6c08bdb799(lodash@4.17.21):
+  bitapps-dev-utils@https://codeload.github.com/Bit-Apps-WPStarterKitPro/bitapps-dev-utils/tar.gz/d8beb5f184cfe84385e60f91e4c7ed6c08bdb799(lodash@4.17.21):
     dependencies:
       dotenv: 16.6.1
       gettext-parser: 8.0.0

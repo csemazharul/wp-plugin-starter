@@ -1,6 +1,6 @@
-## WPStarterKitWPStarterKitPro Separation Guide
+## WPStarterKitPro Separation Guide
 
-### How to Separate Free and WPStarterKitWPStarterKitPro code.
+### How to Separate Free and WPStarterKitPro code.
 
 To separate free and pro code, you need to separate the code into two different files. For example, you can create a file called `Feature.tsx` and `Feature.pro.tsx` and then import the both files in the main file. When calling the feature, you can check if the user is a pro user or not.
 
@@ -8,16 +8,16 @@ To separate free and pro code, you need to separate the code into two different 
 
 ```tsx
 import FeatureFree from './Feature.free'
-import FeatureWPStarterKitWPStarterKitPro from './Feature.pro'
-import isWPStarterKitWPStarterKitPro from '@/src/commons/helpers/isWPStarterKitWPStarterKitPro'
+import FeatureWPStarterKitPro from './Feature.pro'
+import isWPStarterKitPro from '@/src/commons/helpers/isWPStarterKitPro'
 
 const YourComponent = () => {
-  const isWPStarterKitWPStarterKitPro = isWPStarterKitWPStarterKitPro() // Check if the user is a pro user or not
+  const isWPStarterKitPro = isWPStarterKitPro() // Check if the user is a pro user or not
 
   return (
     <div>
       ...
-      {isWPStarterKitWPStarterKitPro ? <FeatureWPStarterKitWPStarterKitPro /> : <FeatureFree />}
+      {isWPStarterKitPro ? <FeatureWPStarterKitPro /> : <FeatureFree />}
       ...
     </div>
   )
@@ -28,13 +28,13 @@ const YourComponent = () => {
 
 ```ts
 import { utilFunctionFree } from './utils.free'
-import { utilFunctionWPStarterKitWPStarterKitPro } from './utils.pro'
-import isWPStarterKitWPStarterKitPro from '@/src/commons/helpers/isWPStarterKitWPStarterKitPro'
+import { utilFunctionWPStarterKitPro } from './utils.pro'
+import isWPStarterKitPro from '@/src/commons/helpers/isWPStarterKitPro'
 
 ...
 const yourFunction = () => {
   ...
-  const result = isWPStarterKitWPStarterKitPro() ? utilFunctionWPStarterKitWPStarterKitPro() : utilFunctionFree()
+  const result = isWPStarterKitPro() ? utilFunctionWPStarterKitPro() : utilFunctionFree()
   ...
 }
 ...
@@ -42,7 +42,7 @@ const yourFunction = () => {
 or inside component
 
 const YourComponent = () => {
-  const result = isWPStarterKitWPStarterKitPro() ? utilFunctionWPStarterKitWPStarterKitPro() : utilFunctionFree()
+  const result = isWPStarterKitPro() ? utilFunctionWPStarterKitPro() : utilFunctionFree()
   return (
     <div>
       ...
@@ -59,11 +59,11 @@ Avoid pro checking in the same file. Instead, create a separate file for pro cod
 
 ```tsx
 export const YourComponent = () => {
-  const isWPStarterKitWPStarterKitPro = isWPStarterKitWPStarterKitPro()
+  const isWPStarterKitPro = isWPStarterKitPro()
 
   return (
     <div>
-      {isWPStarterKitWPStarterKitPro ? (
+      {isWPStarterKitPro ? (
         <div>
           <ul>
             <li>list item 1</li>
@@ -93,11 +93,11 @@ export const YourComponent = () => {
 
 ```ts
 export const yourFunction = arr => {
-  const isWPStarterKitWPStarterKitPro = isWPStarterKitWPStarterKitPro()
+  const isWPStarterKitPro = isWPStarterKitPro()
 
   const result = false
 
-  if (isWPStarterKitWPStarterKitPro) {
+  if (isWPStarterKitPro) {
     result = arr.map(item => item * 2)
     // pro code
   } else {

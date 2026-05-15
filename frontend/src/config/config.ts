@@ -49,8 +49,8 @@ const config = {
   DATE_FORMAT: getServerVariable('dateFormat', 'F j, Y'),
   FREE_VERSION: getServerVariable('version'),
   IS_DEV: import.meta.env.DEV,
-  IS_PRO: SERVER_VARIABLES?.isWPStarterKitWPStarterKitPro === '1',
-  IS_PRO_EXIST: getServerVariable('isWPStarterKitWPStarterKitProExist', '0') === '1',
+  IS_PRO: SERVER_VARIABLES?.isWPStarterKitPro === '1',
+  IS_PRO_EXIST: getServerVariable('isWPStarterKitProExist', '0') === '1',
   KEY: getServerVariable('key'), // license key
   NONCE: getServerVariable('nonce', ''),
   PLUGIN_ADMIN_URL: getServerVariable('pluginAdminURL'),

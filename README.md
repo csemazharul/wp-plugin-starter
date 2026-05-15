@@ -1,6 +1,6 @@
 # WP Starter Kit — WordPress Plugin Starter
 
-A modern WordPress plugin starter with React frontend, PHP backend, and a CLI initializer. Inspired by [WPDrill](https://github.com/WPDrill/framework).
+A modern WordPress plugin starter with React frontend, PHP backend, and a CLI initializer.
 
 > ⚠️ This is a starter template. Run `php wp-kit plugin:init` before activating the plugin.
 
@@ -48,6 +48,7 @@ Enter plugin description:
 ```
 
 After confirming, the CLI will:
+
 1. Replace all placeholders across the codebase
 2. Rename the main plugin PHP file
 3. Run `composer install` with a fresh Imposter namespace transform
@@ -178,12 +179,12 @@ Register it in `InstallerProvider::migration()`:
 
 ## Tech Stack
 
-| Layer     | Tools |
-|-----------|-------|
-| Frontend  | React 18, TypeScript, Vite, Tailwind CSS, Ant Design, Jotai, React Query |
-| Backend   | PHP 7.4+, WPKit, Imposter (namespace isolation) |
-| Testing   | Vitest, PHPUnit, Playwright |
-| Quality   | ESLint, Prettier, PHPStan, PHPCS, Rector |
+| Layer    | Tools                                                                    |
+| -------- | ------------------------------------------------------------------------ |
+| Frontend | React 18, TypeScript, Vite, Tailwind CSS, Ant Design, Jotai, React Query |
+| Backend  | PHP 7.4+, WPKit, Imposter (namespace isolation)                          |
+| Testing  | Vitest, PHPUnit, Playwright                                              |
+| Quality  | ESLint, Prettier, PHPStan, PHPCS, Rector                                 |
 
 ---
 

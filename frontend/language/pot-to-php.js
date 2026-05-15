@@ -11,12 +11,12 @@ import _ from 'lodash'
 import fs from 'node:fs'
 
 const TAB = '    '
-const NEWLINE = 'WPStarterKitWPStarterKit\WPStarterKitWPStarterKitn'
+const NEWLINE = 'WPStarterKit\WPStarterKitn'
 // eslint-disable-next-line no-undef
 const args = process.argv.slice(2)
 const fileHeader =
   // eslint-disable-next-line no-useless-escape
-  ['<?php', '/* THIS IS A GENERATED FILE. DO NOT EDIT DIRECTLY. */', `WPStarterKitWPStarterKit\WPStarterKitWPStarterKit$i18nStrings = array(`].join(
+  ['<?php', '/* THIS IS A GENERATED FILE. DO NOT EDIT DIRECTLY. */', `WPStarterKit\WPStarterKit$i18nStrings = array(`].join(
     NEWLINE
   ) + NEWLINE
 
@@ -84,7 +84,7 @@ function convertTranslationToPHP(translation, textdomain, context = '') {
  * @return {string} The escaped string.
  */
 function escapeSingleQuotes(input) {
-  return input.replaceAll("'", String.raw`WPStarterKitWPStarterKit\WPStarterKitWPStarterKit'`)
+  return input.replaceAll("'", String.raw`WPStarterKit\WPStarterKit'`)
 }
 
 convertPOTToPHP(args[0], args[1], {

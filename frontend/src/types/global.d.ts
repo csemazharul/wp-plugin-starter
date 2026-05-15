@@ -21,8 +21,8 @@ declare const SERVER_VARIABLES: {
   }
   assetsURL: string
   dateFormat: string
-  isWPStarterKitWPStarterKitPro: string
-  isWPStarterKitWPStarterKitProExist?: string
+  isWPStarterKitPro: string
+  isWPStarterKitProExist?: string
   key?: string
   loggedInUserName: string
   nonce: string

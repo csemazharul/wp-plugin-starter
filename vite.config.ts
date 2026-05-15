@@ -20,8 +20,8 @@ export default defineConfig(({ mode }) => {
   const isDevelopment = mode === 'development' || mode === 'test'
   const isTest = mode === 'test'
   const folderName = path.basename(process.cwd())
-  const isWPStarterKitWPStarterKitPro = process.env.VITE_PRO === 'true'
-  const ASSETS_DIR = isWPStarterKitWPStarterKitPro ? 'pro/assets' : 'assets'
+  const isWPStarterKitPro = process.env.VITE_PRO === 'true'
+  const ASSETS_DIR = isWPStarterKitPro ? 'pro/assets' : 'assets'
   const codeName = humanId({ capitalize: false, separator: '-' })
 
   return {

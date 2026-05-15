@@ -110,7 +110,7 @@ return [
     | Timeout
     |--------------------------------------------------------------------------
     | Here you may adjust the timeout (in seconds) for PHPInsights to run before
-    | a WPStarterKitWPStarterKitProcessTimedOutException is thrown.
+    | a WPStarterKitProcessTimedOutException is thrown.
     | This accepts an int > 0. Default is 60 seconds, which is the default value
     | of Symfony's setTimeout function.
     |

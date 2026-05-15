@@ -6,24 +6,24 @@
 :-------------------------------------
 REM  --> Check for permissions
     IF "%PROCESSOR_ARCHITECTURE%" EQU "amd64" (
->nul 2>&1 "%SYSTEMROOT%WPStarterKitWPStarterKit\WPStarterKitWPStarterKitSysWOW64WPStarterKitWPStarterKit\WPStarterKitWPStarterKitcacls.exe" "%SYSTEMROOT%WPStarterKitWPStarterKit\WPStarterKitWPStarterKitSysWOW64WPStarterKitWPStarterKit\WPStarterKitWPStarterKitconfigWPStarterKitWPStarterKit\WPStarterKitWPStarterKitsystem"
+>nul 2>&1 "%SYSTEMROOT%WPStarterKit\WPStarterKitSysWOW64WPStarterKit\WPStarterKitcacls.exe" "%SYSTEMROOT%WPStarterKit\WPStarterKitSysWOW64WPStarterKit\WPStarterKitconfigWPStarterKit\WPStarterKitsystem"
 ) ELSE (
->nul 2>&1 "%SYSTEMROOT%WPStarterKitWPStarterKit\WPStarterKitWPStarterKitsystem32WPStarterKitWPStarterKit\WPStarterKitWPStarterKitcacls.exe" "%SYSTEMROOT%WPStarterKitWPStarterKit\WPStarterKitWPStarterKitsystem32WPStarterKitWPStarterKit\WPStarterKitWPStarterKitconfigWPStarterKitWPStarterKit\WPStarterKitWPStarterKitsystem"
+>nul 2>&1 "%SYSTEMROOT%WPStarterKit\WPStarterKitsystem32WPStarterKit\WPStarterKitcacls.exe" "%SYSTEMROOT%WPStarterKit\WPStarterKitsystem32WPStarterKit\WPStarterKitconfigWPStarterKit\WPStarterKitsystem"
 )
 
 REM --> If error flag set, we do not have admin.
 if '%errorlevel%' NEQ '0' (
     echo Requesting administrative privileges...
-    goto UACWPStarterKitWPStarterKitPrompt
+    goto UACWPStarterKitPrompt
 ) else ( goto gotAdmin )
 
-:UACWPStarterKitWPStarterKitPrompt
-    echo Set UAC = CreateObject^("Shell.Application"^) > "%temp%WPStarterKitWPStarterKit\WPStarterKitWPStarterKitgetadmin.vbs"
+:UACWPStarterKitPrompt
+    echo Set UAC = CreateObject^("Shell.Application"^) > "%temp%WPStarterKit\WPStarterKitgetadmin.vbs"
     set params = %*
-    echo UAC.ShellExecute "cmd.exe", "/c %~s0 %*", "", "runas", 1 >> "%temp%WPStarterKitWPStarterKit\WPStarterKitWPStarterKitgetadmin.vbs"
+    echo UAC.ShellExecute "cmd.exe", "/c %~s0 %*", "", "runas", 1 >> "%temp%WPStarterKit\WPStarterKitgetadmin.vbs"
 
-    "%temp%WPStarterKitWPStarterKit\WPStarterKitWPStarterKitgetadmin.vbs"
-    del "%temp%WPStarterKitWPStarterKit\WPStarterKitWPStarterKitgetadmin.vbs"
+    "%temp%WPStarterKit\WPStarterKitgetadmin.vbs"
+    del "%temp%WPStarterKit\WPStarterKitgetadmin.vbs"
     exit /B
 
 :gotAdmin

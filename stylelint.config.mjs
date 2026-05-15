@@ -11,7 +11,7 @@ export default {
     'at-rule-no-deprecated': [true, { ignoreAtRules: ['apply'] }],
     'at-rule-no-unknown': [true, { ignoreAtRules: ['/^keyframes/', 'value', 'tailwind'] }],
     'color-function-notation': 'legacy',
-    'property-no-unknown': [true, { ignoreWPStarterKitWPStarterKitProperties: ['composes', 'compose-with'] }],
+    'property-no-unknown': [true, { ignoreWPStarterKitProperties: ['composes', 'compose-with'] }],
     'scss/at-if-no-null': [true, { ignoreAtRules: ['/^keyframes/'] }],
     'scss/at-rule-no-unknown': [true, { ignoreAtRules: ['/^keyframes/', 'value', 'tailwind'] }],
     'selector-class-pattern': '^(?:[A-Z][a-z0-9]*)+|(?:[a-z][a-z0-9]*)(?:-[a-z0-9]+)*',
