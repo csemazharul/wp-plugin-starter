@@ -41,17 +41,16 @@ Enter the plugin slug:
 Enter the plugin prefix [space, hyphen will be converted to _]:
 Enter the REST API namespace [space, hyphen will be converted to _]:
 Enter the app root namespace:
-Enter author name:
-Enter author email:
-Enter author URL:
-Enter plugin description:
 ```
 
 After confirming, the CLI will:
 
 1. Replace all placeholders across the codebase
-2. Rename the main plugin PHP file
-3. Run `composer install` with a fresh Imposter namespace transform
+2. Update `backend/app/Config.php` constants
+3. Create the main plugin PHP file (e.g. `your-slug.php`)
+4. Run `composer install` with a fresh Imposter namespace transform
+
+`wp-kit` stays in your repo after init — use it for `make:*` generators (see below).
 
 ### 3. Activate the plugin
 
@@ -85,10 +84,21 @@ pnpm build:free
 ## CLI Commands
 
 ```bash
-php wp-kit plugin:init   # interactive plugin initializer
-php wp-kit plugin:info   # show current plugin name, slug, namespace
-php wp-kit --help        # list all commands
+# Plugin
+php wp-kit plugin:init                       # interactive plugin initializer
+php wp-kit plugin:info                       # show current plugin name, slug, namespace
+
+# Generators (run after plugin:init)
+php wp-kit make:controller ExampleController # backend/app/HTTP/Controllers/<Name>.php
+php wp-kit make:model Tag                    # backend/app/Models/<Name>.php
+php wp-kit make:migration AppConnections     # backend/db/Migrations/<NS><Name>TableMigration.php
+
+php wp-kit --help                            # list all commands
 ```
+
+Generators are **strict positional** — name is required and must be PascalCase. The
+generator refuses to overwrite an existing file. `make:migration` also auto-registers
+the new class in `InstallerProvider::migration()` and `drop()`.
 
 ---
 
@@ -100,11 +110,14 @@ php wp-kit --help        # list all commands
 │   │   ├── Config.php              # plugin constants & config helpers
 │   │   ├── Plugin.php              # plugin bootstrap
 │   │   ├── Dotenv.php              # .env loader
-│   │   ├── HTTP/Middleware/        # nonce & admin checkers
+│   │   ├── HTTP/
+│   │   │   ├── Controllers/        # generated via `wp-kit make:controller`
+│   │   │   └── Middleware/         # nonce & admin checkers
+│   │   ├── Models/                 # generated via `wp-kit make:model`
 │   │   ├── Providers/              # HookProvider, InstallerProvider
 │   │   ├── Views/                  # Layout, Head, Body, HtmlTagModifier
 │   │   └── src/Menu.php            # sidebar menu definition
-│   ├── db/Migrations/              # database migration classes
+│   ├── db/Migrations/              # generated via `wp-kit make:migration`
 │   ├── hooks/
 │   │   ├── api.php                 # REST API routes
 │   │   └── ajax.php                # AJAX routes
@@ -152,28 +165,42 @@ $router->post('get_settings', [\YourNamespace\Controllers\SettingsController::cl
 
 ## Database Migrations
 
-Create a migration class in `backend/db/Migrations/`:
+Generate a migration with the CLI — it scaffolds the file **and** registers it in
+`InstallerProvider::migration()` + `drop()` automatically:
+
+```bash
+php wp-kit make:migration AppConnections
+```
+
+This produces `backend/db/Migrations/<Namespace>AppConnectionsTableMigration.php`
+with a snake_case table name (`app_connections`) and the standard up/down skeleton:
 
 ```php
-final class CreateMyTable extends Migration
+final class WPStarterKitAppConnectionsTableMigration extends Migration
 {
     public function up(): void
     {
-        // create table
+        Schema::withPrefix(Connection::wpPrefix() . Config::VAR_PREFIX)->create(
+            'app_connections',
+            function (Blueprint $table): void {
+                $table->id();
+                // add columns
+                $table->timestamps();
+            }
+        );
     }
 
     public function down(): void
     {
-        // drop table
+        Schema::withPrefix(Connection::wpPrefix() . Config::VAR_PREFIX)->drop('app_connections');
     }
 }
 ```
 
-Register it in `InstallerProvider::migration()`:
-
-```php
-'migrations' => ['PluginOptions', 'CreateMyTable'],
-```
+Migration files use **no namespace** (matches WPKit's MigrationHelper convention) and
+the class name format is `{RootNamespace}{Name}TableMigration`. The class is appended
+to both arrays in [`InstallerProvider`](backend/app/Providers/InstallerProvider.php) so
+the migration runs on activation and rolls back on uninstall.
 
 ---
 
