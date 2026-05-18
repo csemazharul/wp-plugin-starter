@@ -32,3 +32,6 @@ build
 
 gha-creds-*.json
 CLAUDE.local.md
+
+# Docker
+.env.docker

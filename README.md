@@ -18,7 +18,56 @@ A modern WordPress plugin starter with React frontend, PHP backend, and a CLI in
 
 ---
 
-## Quick Start
+## Docker (recommended)
+
+### Prerequisites
+- Docker Desktop (Mac/Windows) or Docker Engine + Compose v2 (Linux)
+- `pnpm` on the host machine (Vite runs locally — not in Docker)
+
+### 1. Start the environment
+
+```bash
+cp .env.docker.example .env.docker   # edit if needed
+make up                               # build image + start services
+make setup                            # install WordPress + activate plugin
+```
+
+| Service   | URL                         |
+| --------- | --------------------------- |
+| WordPress | http://localhost:8080       |
+| WP Admin  | http://localhost:8080/wp-admin |
+| Adminer   | http://localhost:8081       |
+| MailHog   | http://localhost:8025       |
+
+### 2. Frontend hot reload (Vite on host)
+
+```bash
+pnpm install
+pnpm dev:free
+```
+
+Set `DEV=true` and update `DEV_URL` in `.env` to match your plugin slug.
+
+### Common commands
+
+```bash
+make shell          # bash inside WordPress container
+make wp -- plugin list   # run any WP-CLI command
+make composer -- install # run Composer inside container
+make test-php       # run PHPUnit inside container
+make logs           # tail WordPress logs
+make down           # stop services
+make clean          # stop + delete volumes (full reset)
+```
+
+### Xdebug
+
+Set `XDEBUG_MODE=debug` in `.env.docker`, then `make down && make up`.
+Debugger listens on port **9003** (`host.docker.internal`).
+
+---
+
+## Quick Start (without Docker)
 
 ### 1. Install dependencies
 
