@@ -18,56 +18,43 @@ A modern WordPress plugin starter with React frontend, PHP backend, and a CLI in
 
 ---
 
-## Docker (recommended)
+## Local Environment (wp-env)
 
-### Prerequisites
-- Docker Desktop (Mac/Windows) or Docker Engine + Compose v2 (Linux)
-- `pnpm` on the host machine (Vite runs locally — not in Docker)
-
-### 1. Start the environment
-
-```bash
-cp .env.docker.example .env.docker   # edit if needed
-make up                               # build image + start services
-make setup                            # install WordPress + activate plugin
-```
-
-| Service   | URL                         |
-| --------- | --------------------------- |
-| WordPress | http://localhost:8080       |
-| WP Admin  | http://localhost:8080/wp-admin |
-| Adminer   | http://localhost:8081       |
-| MailHog   | http://localhost:8025       |
-
-### 2. Frontend hot reload (Vite on host)
+Requires [Docker Desktop](https://www.docker.com/products/docker-desktop/) (Mac/Windows) or Docker Engine (Linux).
 
 ```bash
 pnpm install
-pnpm dev:free
+pnpm env:start        # starts WordPress + activates plugin automatically
 ```
 
-Set `DEV=true` and update `DEV_URL` in `.env` to match your plugin slug.
+| URL | |
+|-----|-|
+| WordPress | http://localhost:8888 |
+| WP Admin | http://localhost:8888/wp-admin (admin / password) |
+| phpMyAdmin | http://localhost:8889 |
 
 ### Common commands
 
 ```bash
-make shell          # bash inside WordPress container
-make wp -- plugin list   # run any WP-CLI command
-make composer -- install # run Composer inside container
-make test-php       # run PHPUnit inside container
-make logs           # tail WordPress logs
-make down           # stop services
-make clean          # stop + delete volumes (full reset)
+pnpm env:stop                      # stop environment
+pnpm env:shell                     # bash inside container
+pnpm env:wp -- plugin list         # run any WP-CLI command
+pnpm env:logs                      # tail logs
+pnpm env:clean                     # reset database
+pnpm env:destroy                   # remove containers + volumes
 ```
 
-### Xdebug
+### Frontend hot reload
 
-Set `XDEBUG_MODE=debug` in `.env.docker`, then `make down && make up`.
-Debugger listens on port **9003** (`host.docker.internal`).
+```bash
+pnpm dev:free
+```
+
+Set `DEV=true` and `DEV_URL=http://localhost:3000/wp-content/plugins/<your-slug>/frontend` in `.env`.
 
 ---
 
-## Quick Start (without Docker)
+## Quick Start
 
 ### 1. Install dependencies
 
