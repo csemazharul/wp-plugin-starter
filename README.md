@@ -18,52 +18,9 @@ A modern WordPress plugin starter with React frontend, PHP backend, and a CLI in
 
 ---
 
-## Local Environment (wp-env)
+## Setup
 
-Requires [Docker Desktop](https://www.docker.com/products/docker-desktop/) (Mac/Windows) or Docker Engine (Linux).
-
-```bash
-pnpm install
-pnpm env:start        # starts WordPress + activates plugin automatically
-```
-
-| URL | |
-|-----|-|
-| WordPress | http://localhost:8888 |
-| WP Admin | http://localhost:8888/wp-admin (admin / password) |
-| phpMyAdmin | http://localhost:8889 |
-
-### Common commands
-
-```bash
-pnpm env:stop                      # stop environment
-pnpm env:shell                     # bash inside container
-pnpm env:wp -- plugin list         # run any WP-CLI command
-pnpm env:logs                      # tail logs
-pnpm env:clean                     # reset database
-pnpm env:destroy                   # remove containers + volumes
-```
-
-### Frontend hot reload
-
-```bash
-pnpm dev:free
-```
-
-Set `DEV=true` and `DEV_URL=http://localhost:3000/wp-content/plugins/<your-slug>/frontend` in `.env`.
-
----
-
-## Quick Start
-
-### 1. Install dependencies
-
-```bash
-composer install
-pnpm install
-```
-
-### 2. Initialize your plugin
+### 1. Initialize the plugin
 
 ```bash
 php wp-kit plugin:init
@@ -86,9 +43,64 @@ After confirming, the CLI will:
 3. Create the main plugin PHP file (e.g. `your-slug.php`)
 4. Run `composer install` with a fresh Imposter namespace transform
 
-`wp-kit` stays in your repo after init — use it for `make:*` generators (see below).
+### 2. Configure .env
 
-### 3. Activate the plugin
+```bash
+cp .env.example .env
+```
+
+Edit `.env` and set at minimum:
+
+```env
+PLUGIN_SLUG = your-plugin-slug
+DEV          = true
+DEV_URL      = http://localhost:3000/wp-content/plugins/your-plugin-slug/frontend
+```
+
+### 3. Start development
+
+Choose one path:
+
+---
+
+#### Option A — Docker (wp-env) `recommended`
+
+Requires [Docker Desktop](https://www.docker.com/products/docker-desktop/) (Mac/Windows) or Docker Engine (Linux).
+
+```bash
+pnpm install
+pnpm env:start    # spins up WordPress + activates plugin automatically
+pnpm dev:free     # start Vite dev server with HMR
+```
+
+| Service | URL |
+|---------|-----|
+| WordPress | http://localhost:8888 |
+| WP Admin | http://localhost:8888/wp-admin `admin / password` |
+| phpMyAdmin | http://localhost:8889 |
+
+**wp-env commands:**
+
+```bash
+pnpm env:stop                  # stop containers
+pnpm env:shell                 # bash inside container
+pnpm env:wp -- plugin list     # run any WP-CLI command
+pnpm env:logs                  # tail logs
+pnpm env:clean                 # reset database
+pnpm env:destroy               # remove containers + volumes
+```
+
+---
+
+#### Option B — Existing WordPress install
+
+Place this repo inside `wp-content/plugins/your-plugin-slug/`, then:
+
+```bash
+composer install
+pnpm install
+pnpm dev:free     # start Vite dev server with HMR
+```
 
 Go to **WordPress Admin → Plugins** and activate your plugin.
 
