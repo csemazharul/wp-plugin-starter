@@ -12,7 +12,7 @@ pre-push:
       glob: '*php'
       run: composer test {staged_files}
     php-compatibility-check:
-      glob: 'pro/backend/**/*.php'
+      glob: 'backend/**/*.php'
       run: composer compat {staged_files}
 
     lint:
