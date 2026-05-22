@@ -21,6 +21,7 @@
     "env:shell": "wp-env run wordpress bash",
     "env:wp": "wp-env run wordpress wp",
     "exp:bun-dev": "cross-env VITE_PRO=true bunx --bun vite",
+    "preenv:start": "composer install --no-dev",
     "lint": "eslint frontend --fix",
     "lint:css": "stylelint frontend/**/*.{css,scss} --aei --color --fix",
     "lint:php": "composer lint",
