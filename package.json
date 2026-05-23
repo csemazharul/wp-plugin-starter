@@ -25,7 +25,6 @@
     "lint": "eslint frontend --fix",
     "lint:css": "stylelint frontend/**/*.{css,scss} --aei --color --fix",
     "lint:php": "composer lint",
-    "pre-commit": "lefthook run pre-commit",
     "pretty": "npx prettier ./frontend/src --check",
     "pretty:fix": "npx prettier ./frontend/src --check --write",
     "preview": "vite preview",
